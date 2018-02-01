@@ -10,7 +10,7 @@ var Statistics = function (ctx, names, times) {
   this.columnWidth = 40,
   this.columnMaxHeight = 150,
   this.columnOffset = 50,
-  this.padding = 30,
+  this.padding = 5,
   this.userColumnColor = 'rgba(255, 0, 0, 1)',
   this.otherColumnsColor = 'rgb(0,191,255)',
   this.times = times.map(function(time) {
@@ -32,7 +32,7 @@ var Statistics = function (ctx, names, times) {
   this.renderNumbers = function () {
     var max = 1;
     var min = 0;
-    return +((Math.random() * (max - min)) + min).toFixed(1);
+    return +((Math.random() * (max - min)) + min + 0.2).toFixed(1);
   }
 
   this.renderColor = function () {
@@ -41,18 +41,15 @@ var Statistics = function (ctx, names, times) {
     return `rgba(${rgbColor},${alfa})`;
   },
 
-  this.getMaxElement = function () {
-    return Math.max.apply(null,this.times);
-  },
-
   this.renderColumns = function () {
-    var max = this.getMaxElement();
+    var max = Math.max.apply(null,this.times);
     this.names.forEach(function (name, index) {
       var x = this.cloudX + this.columnOffset + ((this.columnWidth + this.columnOffset) * index);
-      this.renderText(name, x, 260);
+      var y = Math.round((-this.columnMaxHeight * this.times[index]) / max);
+      this.renderText(name, x, this.cloudHeight + this.padding);
       this.ctx.fillStyle = name === 'Вы' ? this.userColumnColor : this.renderColor();
-
-      this.ctx.fillRect(x, 240, 40, -150);
+      this.ctx.fillRect(x, 250, 40, y);
+      this.renderText(this.times[index], x, this.cloudHeight - (- y) - this.padding * 5);
     }, this);
   }
 };
