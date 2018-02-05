@@ -6,64 +6,27 @@ const renderNumbers = () => {
   return ((Math.random() * (max - min)) + min);
 };
 
-const renderText = function (ctx, text, fontParams) {
+const renderText = (ctx, text, fontParams) => {
   ctx.fillStyle = fontParams.color;
   ctx.font = fontParams.font;
   ctx.fillText(text, fontParams.x, fontParams.y);
 };
 
-// const Color = function () {
-//   this.userColumnColor = {
-//     red: 255,
-//     green: 0,
-//     blue: 0,
-//     alfa: 1
-//   };
-//   this.otherColumnsColor = {
-//     red: 0,
-//     green: 191,
-//     blue: 255,
-//     alfa: null
-//   };
-//
-//   this.renderAlfa = function () {
-//     return +(renderNumbers() + 0.2).toFixed(1);
-//   };
-//
-//   this.getRgbaString = function () {
-//
-//   };
-// };
+const Color = function () {
 
-// TODO(@greenlera) генерацию числа вынести
-// TODO(@greenlera) переименовать объект в renderer
-// TODO(@greenlera) вынести объект color
-// TODO(@greenlera) вынести простую логику из методов
-// TODO(@greenlera) отрисовку текстов
-// TODO(@greenlera) не вызыват снаружи методы
-// TODO(@greenlera) перепридумать публичный интерфейс
-// TODO(@greenlera) добавить менеджера
+  this.renderAlfa = () => {
+    return +(renderNumbers() + 0.2).toFixed(1);
+  };
 
-
-// var ctx = canvas.getContext('2d');
-// var players = [4000, 4200, 1400, 3500];
-//
-// var height = 150;
-// var width = 20;
-//
-// var offset = 20;
-//
-// var max = Math.max.apply(null, players);
-//
-// players.forEach(function(player, index) {
-//   var columnHeight = (player * height) / max;
-//
-//   ctx.fillRect((width + offset) * index, height - columnHeight, width, columnHeight);
-// });
+  this.getRgbaString = (color) => {
+    return `rgba(${color.red},${color.green},${color.blue},${color.alfa ? color.alfa : this.renderAlfa()})`;
+  };
+};
 
 const StatisticsRenderer = function (ctx, names, times) {
   this.names = names;
   this.ctx = ctx;
+  this.userName = `Вы`;
   this.fontOptions = {
     color: `black`,
     font: `16px PT Mono`,
@@ -85,13 +48,25 @@ const StatisticsRenderer = function (ctx, names, times) {
     columnOffset: 50,
     padding: 5
   };
+  this.userColumnColor = {
+    red: 255,
+    green: 0,
+    blue: 0,
+    alfa: 1
+  };
+  this.otherColumnsColor = {
+    red: 0,
+    green: 191,
+    blue: 255,
+    alfa: null
+  };
   this.times = times.map((time) => {
     return Math.round(time);
   });
 
   this.render = function () {
     this.renderCloud(
-        this.cloudOptions.cloudY + this.cloudOptions.cloudOffset, this.cloudOptions.cloudY + this.cloudOptions.cloudOffset, this.cloudOptions.shadowCloudColor);
+        this.cloudOptions.cloudX + this.cloudOptions.cloudOffset, this.cloudOptions.cloudY + this.cloudOptions.cloudOffset, this.cloudOptions.shadowCloudColor);
     this.renderCloud(
         this.cloudOptions.cloudX,
         this.cloudOptions.cloudY,
@@ -118,34 +93,28 @@ const StatisticsRenderer = function (ctx, names, times) {
     return +(renderNumbers() + 0.2).toFixed(1);
   };
 
-  this.renderColor = function () {
-    const rgbColor = this.otherColumnsColor.slice(4, -1);
-    const alfa = this.renderNumbers();
-    return `rgba(${rgbColor},${alfa})`;
-  };
-
   this.renderColumns = function () {
     const max = Math.max.apply(null, this.times);
     this.names.forEach(function (name, index) {
       const x = this.cloudOptions.cloudX + this.columnOptions.columnOffset + ((this.columnOptions.columnWidth + this.columnOptions.columnOffset) * index);
-      const y = Math.round((-this.columnOptions.columnMaxHeight * this.times[index]) / max);
+      const height = Math.round((this.columnOptions.columnMaxHeight * this.times[index]) / max);
 
       renderText(this.ctx, name,
           Object.assign({}, this.fontOptions, {
             x,
             y: this.cloudOptions.cloudHeight + this.columnOptions.padding
           }));
-      this.ctx.fillStyle = name === `Вы` ? this.userColumnColor : this.renderColor();
-      this.ctx.fillRect(x, 250, 40, y);
+      const color = new Color();
+      this.ctx.fillStyle = name === this.userName ? color.getRgbaString(this.userColumnColor) : color.getRgbaString(this.otherColumnsColor);
+      this.ctx.fillRect(x, 250 - height, 40, height);
       renderText(this.ctx, this.times[index],
           Object.assign({}, this.fontOptions, {
             x,
-            y: this.cloudOptions.cloudHeight - (-y) - this.columnOptions.padding * 5
+            y: (250 - height) - this.columnOptions.padding
           }));
     }, this);
   };
 };
-
 
 window.renderStatistics = function (ctx, names, times) {
   const renderer = new StatisticsRenderer(ctx, names, times);
