@@ -1,3 +1,4 @@
+*/game.js
 build/
 node_modules/
 .DS_Store
@@ -10,4 +11,3 @@ Thumbs.db
 *.pdf
 yarn.lock
 npm-debug.log*
-*/game.js
