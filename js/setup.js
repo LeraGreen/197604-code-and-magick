@@ -32,16 +32,21 @@ const generateNumber = (min, max) => (Math.random() * (max - min)) + min;
 const getRandomElement = (array) => array[Math.floor(generateNumber(0, array.length - 1))];
 
 // фишер
-const getArrayElement = (array) => {
+const getMixArray = (array) => {
   const newArray = array.slice();
   let index;
+  let element;
 
   for (let i = newArray.length - 1; i >= 0; i--) {
     index = Math.floor(generateNumber(0, i));
-    newArray.push(newArray.splice(index, 1).join());
+    element = newArray[index];
+    newArray.push(element);
+    newArray.splice(index, 1);
   }
   return newArray;
 };
+
+getMixArray([1, 2, 3, 4, 5, 6, 7, 8]);
 
 
 const createContent = (string) => {
