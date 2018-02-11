@@ -31,6 +31,24 @@ const generateNumber = (min, max) => (Math.random() * (max - min)) + min;
 
 const getRandomElement = (array) => array[Math.floor(generateNumber(0, array.length - 1))];
 
+//фишер
+const getArrayElement = (array) => {
+  const newArray = array.slice();
+  let index;
+  let element;
+
+  for (let i = newArray.length - 1; i > 0; i--) {
+    console.log(newArray, 'старый');
+    index = Math.floor(generateNumber(0, i));
+    element = newArray[index];
+    newArray.push(newArray.splice(index, 1).join());
+    console.log(newArray, 'новый');
+    console.log(element, 'кто вернулся');
+    return element;
+  }
+  console.log('aaaaa');
+};
+
 
 const createContent = (string) => {
   const container = document.createElement(`template`);
