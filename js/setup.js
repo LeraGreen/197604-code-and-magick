@@ -4,9 +4,9 @@ const setup = document.querySelector(`.setup`);
 const similarListElement = setup.querySelector(`.setup-similar-list`);
 const setupSimilar = setup.querySelector(`.setup-similar`);
 
-const elements = {
+const wizardsElements = {
   'setup': setup,
-  'similarListElement':  similarListElement,
+  'similarListElement': similarListElement,
   'setupSimilar': setupSimilar
 };
 
@@ -31,22 +31,16 @@ const generateNumber = (min, max) => (Math.random() * (max - min)) + min;
 
 const getRandomElement = (array) => array[Math.floor(generateNumber(0, array.length - 1))];
 
-//фишер
+// фишер
 const getArrayElement = (array) => {
   const newArray = array.slice();
   let index;
-  let element;
 
-  for (let i = newArray.length - 1; i > 0; i--) {
-    console.log(newArray, 'старый');
+  for (let i = newArray.length - 1; i >= 0; i--) {
     index = Math.floor(generateNumber(0, i));
-    element = newArray[index];
     newArray.push(newArray.splice(index, 1).join());
-    console.log(newArray, 'новый');
-    console.log(element, 'кто вернулся');
-    return element;
   }
-  console.log('aaaaa');
+  return newArray;
 };
 
 
@@ -75,7 +69,7 @@ class WizardsRenderer {
     this.setup = elements.setup;
     this.similarListElement = elements.similarListElement;
     this.setupSimilar = elements.setupSimilar;
-    this.elementsQuantity = options.elementsQuantity ;
+    this.elementsQuantity = options.elementsQuantity;
     this.names = options.names;
     this.familyNames = options.familyNames;
     this.coatColors = options.coatColors;
@@ -108,7 +102,7 @@ class WizardsRenderer {
     this.similarListElement.appendChild(fragment);
     this.setupSimilar.classList.remove(`hidden`);
   }
-};
+}
 
-const rendererWizards = new WizardsRenderer(elements, wizardsOptions);
+const rendererWizards = new WizardsRenderer(wizardsElements, wizardsOptions);
 rendererWizards.render();
