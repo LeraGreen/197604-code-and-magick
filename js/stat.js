@@ -22,15 +22,15 @@ class Color {
 }
 
 class StatisticsRenderer {
-  constructor(data, userName, winnerPhrase, fontOptions, cloudOptions, columnOptions) {
-    this.names = data.names;
-    this.ctx = data.ctx;
-    this.times = data.times;
-    this.userName = userName;
-    this.winnerPhrase = winnerPhrase;
-    this.fontOptions = fontOptions;
-    this.cloudOptions = cloudOptions;
-    this.columnOptions = columnOptions;
+  constructor(ctx, statistics, options) {
+    this.ctx = ctx;
+    this.names = statistics.names;
+    this.times = statistics.times;
+    this.userName = options.phrases.userName;
+    this.winnerPhrase = options.phrases.winnerPhrase;
+    this.fontOptions = options.font;
+    this.cloudOptions = options.cloud;
+    this.columnOptions = options.column;
   }
 
   render() {
@@ -49,9 +49,13 @@ class StatisticsRenderer {
           x: 220,
           y: 40
         }));
-    this.maxTime = Math.max.apply(null, this.times);
-    this.renderHeight = this.cloudOptions.height - this.cloudOptions.offset * 2;
-    this.names.forEach(this.renderColumns, this);
+
+    const maxTime = Math.max.apply(null, this.times);
+    const renderHeight = this.cloudOptions.height - this.cloudOptions.offset * 2;
+
+    for (let i = 0; i < this.names.length; i++) {
+      this.renderColumn(this.names[i], i, maxTime, renderHeight);
+    }
   }
 
 
@@ -60,9 +64,9 @@ class StatisticsRenderer {
     this.ctx.fillRect(x, y, this.cloudOptions.width, this.cloudOptions.height);
   }
 
-  renderColumns(name, index) {
+  renderColumn(name, index, maxTime, renderHeight) {
     const x = this.cloudOptions.x + this.columnOptions.offset + ((this.columnOptions.width + this.columnOptions.offset) * index);
-    const height = Math.round((this.columnOptions.maxHeight * this.times[index]) / this.maxTime);
+    const height = Math.round((this.columnOptions.maxHeight * this.times[index]) / maxTime);
 
     renderText(this.ctx, name,
         Object.assign({}, this.fontOptions, {
@@ -70,49 +74,54 @@ class StatisticsRenderer {
           y: this.cloudOptions.height
         }));
 
-    this.ctx.fillStyle = name === this.userName ? this.columnOptions.userColor.getRgbaString(1) : this.columnOptions.otherColor.getRgbaString(+generateNumber(0.2, 1).toFixed(1));
+    this.ctx.fillStyle = name === this.userName
+      ? this.columnOptions.userColor.getRgbaString(1)
+      : this.columnOptions.otherColor.getRgbaString(+generateNumber(0.2, 1).toFixed(1));
 
-    this.ctx.fillRect(x, this.renderHeight - height, this.columnOptions.width, height);
+    this.ctx.fillRect(x, renderHeight - height, this.columnOptions.width, height);
 
     renderText(this.ctx, this.times[index],
         Object.assign({}, this.fontOptions, {
           x,
-          y: (this.renderHeight - height) - this.columnOptions.padding
+          y: (renderHeight - height) - this.columnOptions.padding
         }));
   }
 }
 
 window.renderStatistics = function (ctx, names, times) {
-  const initialData = {
-    'ctx': ctx,
+  const statistics = {
     'names': names,
     'times': times.map(Math.round)
   };
-  const userName = `Вы`;
-  const winnerPhrase = `Ура! Вы победили!`;
-  const fontOptions = {
-    color: `black`,
-    font: `16px PT Mono`,
-    x: 0,
-    y: 0
+  const options = {
+    phrases: {
+      userName: `Вы`,
+      winnerPhrase: `Ура! Вы победили!`
+    },
+    font: {
+      color: `black`,
+      font: `16px PT Mono`,
+      x: 0,
+      y: 0
+    },
+    cloud: {
+      x: 100,
+      y: 10,
+      width: 420,
+      height: 270,
+      offset: 10,
+      mainColor: new Color(255, 255, 255).getRgbaString(1),
+      shadowColor: new Color(0, 0, 0).getRgbaString(0.7)
+    },
+    column: {
+      width: 40,
+      maxHeight: 150,
+      offset: 50,
+      padding: 5,
+      userColor: new Color(255, 0, 0),
+      otherColor: new Color(0, 191, 255)
+    }
   };
-  const cloudOptions = {
-    x: 100,
-    y: 10,
-    width: 420,
-    height: 270,
-    offset: 10,
-    mainColor: new Color(255, 255, 255).getRgbaString(1),
-    shadowColor: new Color(0, 0, 0).getRgbaString(0.7)
-  };
-  const columnOptions = {
-    width: 40,
-    maxHeight: 150,
-    offset: 50,
-    padding: 5,
-    userColor: new Color(255, 0, 0),
-    otherColor: new Color(0, 191, 255)
-  };
-  const renderer = new StatisticsRenderer(initialData, userName, winnerPhrase, fontOptions, cloudOptions, columnOptions);
+  const renderer = new StatisticsRenderer(ctx, statistics, options);
   renderer.render();
 };
