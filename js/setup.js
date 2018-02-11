@@ -29,9 +29,6 @@ const showElement = (element) => {
 // после принятия пр убрать эту функцию, так как она есть в другом модуле
 const generateNumber = (min, max) => (Math.random() * (max - min)) + min;
 
-const getRandomElement = (array) => array[Math.floor(generateNumber(0, array.length - 1))];
-
-// фишер
 const getMixArray = (array) => {
   const newArray = array.slice();
   let index;
@@ -87,12 +84,16 @@ class WizardsRenderer {
   }
 
   getArray() {
+    const mixNames = getMixArray(this.names);
+    const mixFamilyNames = getMixArray(this.familyNames);
+    const mixCoatColors = getMixArray(this.coatColors);
+    const mixEyesColors = getMixArray(this.eyesColors);
     const array = [];
     for (let i = 0; i < this.elementsQuantity; i++) {
       const object = Object.assign({}, {
-        name: `${getRandomElement(this.names)} ${getRandomElement(this.familyNames)}`,
-        coatcolor: getRandomElement(this.coatColors),
-        eyesColor: getRandomElement(this.eyesColors)
+        name: `${mixNames[i]} ${mixFamilyNames[i]}`,
+        coatColor: mixCoatColors[i],
+        eyesColor: mixEyesColors[i]
       });
       array.push(object);
     }
