@@ -1,40 +1,75 @@
 'use strict';
 
+const setup = document.querySelector(`.setup`);
+const similarListElement = setup.querySelector(`.setup-similar-list`);
+const setupSimilar = setup.querySelector(`.setup-similar`);
+
+const elements = {
+  'setup': setup,
+  'similarListElement':  similarListElement,
+  'setupSimilar': setupSimilar
+};
+
+const wizardsOptions = {
+  elementsQuantity: 4,
+  names: [`Иван`, `Хуан Себастьян`, `Мария`, `Кристоф`, `Виктор`, `Юлия`, `Люпита`, `Вашингтон`],
+  familyNames: [`да Марья`, `Верон`, `Мирабелла`, `Вальц`, `Онопко`, `Топольницкая`, `Нионго`, `Ирвинг`],
+  coatColors: [`rgb(101, 137, 164)`, `rgb(241, 43, 107)`, `rgb(146, 100, 161)
+  `, `rgb(56, 159, 117)
+  `, `rgb(215, 210, 55)
+  `, `rgb(0, 0, 0)`],
+  eyesColors: [`black`, `red`, `blue`, `yellow`, `green`]
+};
+
+
 const showElement = (element) => {
   element.classList.remove(`hidden`);
 };
 
-const getRandomElement = (array) => {
-  const min = 0;
-  const index = Math.floor(Math.random() * (array.length - min)) + min;
-  return array[index];
-};
+// после принятия пр убрать эту функцию, так как она есть в другом модуле
+const generateNumber = (min, max) => (Math.random() * (max - min)) + min;
+
+const getRandomElement = (array) => array[Math.floor(generateNumber(0, array.length - 1))];
+
 
 const createContent = (string) => {
-  const container = document.createElement(`div`);
+  const container = document.createElement(`template`);
   container.innerHTML = string;
-  return container;
+  return container.content;
 };
 
-const RendererWizards = function () {
-  this.setup = document.querySelector(`.setup`);
-  this.similarListElement = this.setup.querySelector(`.setup-similar-list`);
-  this.setupSimilar = this.setup.querySelector(`.setup-similar`);
-  this.elementsQuantity = 4;
-  this.names = [`Иван`, `Хуан Себастьян`, `Мария`, `Кристоф`, `Виктор`, `Юлия`, `Люпита`, `Вашингтон`];
-  this.familyNames = [`да Марья`, `Верон`, `Мирабелла`, `Вальц`, `Онопко`, `Топольницкая`, `Нионго`, `Ирвинг`];
-  this.coatColors = [`rgb(101, 137, 164)`, `rgb(241, 43, 107)`, `rgb(146, 100, 161)
-  `, `rgb(56, 159, 117)
-  `, `rgb(215, 210, 55)
-  `, `rgb(0, 0, 0)`];
-  this.eyesColors = [`black`, `red`, `blue`, `yellow`, `green`];
+const getWizardTemplate = (wizard) => `<div class="setup-similar-item">
+    <div class="setup-similar-content">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 62 86" class="setup-similar-wizard">
+        <g class="wizard">
+          <use xlink:href="#wizard-coat" class="wizard-coat" fill="${wizard.coatColor}"></use>
+          <use xlink:href="#wizard-head" class="wizard-head"></use>
+          <use xlink:href="#wizard-eyes" class="wizard-eyes" fill="${wizard.eyesColor}"></use>
+          <use xlink:href="#wizard-hands" class="wizard-hands"></use>
+        </g>
+      </svg>
+    </div>
+    <p class="setup-similar-label">${wizard.name}</p>
+  </div>`;
 
-  this.render = function () {
+class WizardsRenderer {
+  constructor(elements, options) {
+    this.setup = elements.setup;
+    this.similarListElement = elements.similarListElement;
+    this.setupSimilar = elements.setupSimilar;
+    this.elementsQuantity = options.elementsQuantity ;
+    this.names = options.names;
+    this.familyNames = options.familyNames;
+    this.coatColors = options.coatColors;
+    this.eyesColors = options.eyesColors;
+  }
+
+  render() {
     showElement(this.setup);
-    this.pasteFragment(this.getArray());
-  };
+    this.setFragment(this.getArray());
+  }
 
-  this.getArray = function () {
+  getArray() {
     const array = [];
     for (let i = 0; i < this.elementsQuantity; i++) {
       const object = Object.assign({}, {
@@ -45,34 +80,17 @@ const RendererWizards = function () {
       array.push(object);
     }
     return array;
-  };
+  }
 
-
-  this.getTemplate = function (wizard) {
-    return `<div class="setup-similar-item">
-      <div class="setup-similar-content">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 62 86" class="setup-similar-wizard">
-          <g class="wizard">
-            <use xlink:href="#wizard-coat" class="wizard-coat" fill="${wizard.coatColor}"></use>
-            <use xlink:href="#wizard-head" class="wizard-head"></use>
-            <use xlink:href="#wizard-eyes" class="wizard-eyes" fill="${wizard.eyesColor}"></use>
-            <use xlink:href="#wizard-hands" class="wizard-hands"></use>
-          </g>
-        </svg>
-      </div>
-      <p class="setup-similar-label">${wizard.name}</p>
-    </div>`;
-  };
-
-  this.pasteFragment = (array) => {
+  setFragment(array) {
     const fragment = document.createDocumentFragment();
     for (const item of array) {
-      fragment.appendChild(createContent(this.getTemplate(item)));
+      fragment.appendChild(createContent(getWizardTemplate(item)));
     }
     this.similarListElement.appendChild(fragment);
     this.setupSimilar.classList.remove(`hidden`);
-  };
+  }
 };
 
-const rendererWizards = new RendererWizards();
+const rendererWizards = new WizardsRenderer(elements, wizardsOptions);
 rendererWizards.render();
