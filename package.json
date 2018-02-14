@@ -14,10 +14,12 @@
   "license": "MIT",
   "devDependencies": {
     "eslint": "4.2.0",
-    "eslint-config-htmlacademy": "0.3.x"
+    "eslint-config-htmlacademy": "0.3.x",
+    "http-server": "^0.11.1"
   },
   "dependencies": {},
   "scripts": {
+    "start": "http-server .",
     "test": "eslint js/"
   },
   "engines": {
