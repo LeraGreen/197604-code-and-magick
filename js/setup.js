@@ -22,28 +22,39 @@ const wizardsOptions = {
 };
 
 
-const showElement = (element) => {
-  element.classList.remove(`hidden`);
+const setElementVisible = (element, isVisible) => {
+  isVisible ? element.classList.remove(`hidden`) : element.classList.add(`hidden`);
 };
 
 // после принятия пр убрать эту функцию, так как она есть в другом модуле
 const generateNumber = (min, max) => (Math.random() * (max - min)) + min;
 
-const getMixArray = (array) => {
+const shuffleArray = (array) => {
   const newArray = array.slice();
-  let index;
-  let element;
 
   for (let i = newArray.length - 1; i >= 0; i--) {
-    index = Math.floor(generateNumber(0, i));
-    element = newArray[index];
-    newArray.push(element);
-    newArray.splice(index, 1);
+    const index = Math.floor(generateNumber(0, i));
+    [newArray[index], newArray[newArray.length - 1]] = [newArray[newArray.length - 1], newArray[index]];
   }
   return newArray;
 };
 
-getMixArray([1, 2, 3, 4, 5, 6, 7, 8]);
+const getArray = (names, familyNames, coatColors, eyesColors, quantity) => {
+  const mixNames = shuffleArray(names);
+  const mixFamilyNames = shuffleArray(familyNames);
+  const mixCoatColors = shuffleArray(coatColors);
+  const mixEyesColors = shuffleArray(eyesColors);
+  const array = [];
+  for (let i = 0; i < quantity; i++) {
+    const object = Object.assign({}, {
+      name: `${mixNames[i]} ${mixFamilyNames[i]}`,
+      coatColor: mixCoatColors[i],
+      eyesColor: mixEyesColors[i]
+    });
+    array.push(object);
+  }
+  return array;
+};
 
 
 const createContent = (string) => {
@@ -68,9 +79,7 @@ const getWizardTemplate = (wizard) => `<div class="setup-similar-item">
 
 class WizardsRenderer {
   constructor(elements, options) {
-    this.setup = elements.setup;
-    this.similarListElement = elements.similarListElement;
-    this.setupSimilar = elements.setupSimilar;
+    this.elements = elements;
     this.elementsQuantity = options.elementsQuantity;
     this.names = options.names;
     this.familyNames = options.familyNames;
@@ -79,34 +88,17 @@ class WizardsRenderer {
   }
 
   render() {
-    showElement(this.setup);
-    this.setFragment(this.getArray());
+    setElementVisible(this.elements.setup, true);
+    this.showElements(getArray(this.names, this.familyNames, this.coatColors, this.eyesColors, this.elementsQuantity));
   }
 
-  getArray() {
-    const mixNames = getMixArray(this.names);
-    const mixFamilyNames = getMixArray(this.familyNames);
-    const mixCoatColors = getMixArray(this.coatColors);
-    const mixEyesColors = getMixArray(this.eyesColors);
-    const array = [];
-    for (let i = 0; i < this.elementsQuantity; i++) {
-      const object = Object.assign({}, {
-        name: `${mixNames[i]} ${mixFamilyNames[i]}`,
-        coatColor: mixCoatColors[i],
-        eyesColor: mixEyesColors[i]
-      });
-      array.push(object);
-    }
-    return array;
-  }
-
-  setFragment(array) {
+  showElements(array) {
     const fragment = document.createDocumentFragment();
     for (const item of array) {
       fragment.appendChild(createContent(getWizardTemplate(item)));
     }
-    this.similarListElement.appendChild(fragment);
-    this.setupSimilar.classList.remove(`hidden`);
+    this.elements.similarListElement.appendChild(fragment);
+    setElementVisible(this.elements.setupSimilar, true);
   }
 }
 
