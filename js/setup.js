@@ -62,7 +62,6 @@ class WizardsRenderer {
   constructor(data, list) {
     this.data = data;
     this.list = list;
-    this.renderElements();
   }
 
   render() {
