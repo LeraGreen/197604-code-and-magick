@@ -4,12 +4,6 @@ const setup = document.querySelector(`.setup`);
 const similarListElement = setup.querySelector(`.setup-similar-list`);
 const setupSimilar = setup.querySelector(`.setup-similar`);
 
-const wizardsElements = {
-  'setup': setup,
-  'similarListElement': similarListElement,
-  'setupSimilar': setupSimilar
-};
-
 const wizardsOptions = {
   elementsQuantity: 4,
   names: [`Иван`, `Хуан Себастьян`, `Мария`, `Кристоф`, `Виктор`, `Юлия`, `Люпита`, `Вашингтон`],
@@ -23,7 +17,7 @@ const wizardsOptions = {
 
 
 const setElementVisible = (element, isVisible) => {
-  isVisible ? element.classList.remove(`hidden`) : element.classList.add(`hidden`);
+  element.classList.toggle(`hidden`, !isVisible);
 };
 
 // после принятия пр убрать эту функцию, так как она есть в другом модуле
@@ -34,7 +28,8 @@ const shuffleArray = (array) => {
 
   for (let i = newArray.length - 1; i >= 0; i--) {
     const index = Math.floor(generateNumber(0, i));
-    [newArray[index], newArray[newArray.length - 1]] = [newArray[newArray.length - 1], newArray[index]];
+    const lastIndex = newArray.length - 1;
+    [newArray[index], newArray[lastIndex]] = [newArray[lastIndex], newArray[index]];
   }
   return newArray;
 };
@@ -63,44 +58,45 @@ const createContent = (string) => {
   return container.content;
 };
 
-const getWizardTemplate = (wizard) => `<div class="setup-similar-item">
-    <div class="setup-similar-content">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 62 86" class="setup-similar-wizard">
-        <g class="wizard">
-          <use xlink:href="#wizard-coat" class="wizard-coat" fill="${wizard.coatColor}"></use>
-          <use xlink:href="#wizard-head" class="wizard-head"></use>
-          <use xlink:href="#wizard-eyes" class="wizard-eyes" fill="${wizard.eyesColor}"></use>
-          <use xlink:href="#wizard-hands" class="wizard-hands"></use>
-        </g>
-      </svg>
-    </div>
-    <p class="setup-similar-label">${wizard.name}</p>
-  </div>`;
-
 class WizardsRenderer {
-  constructor(elements, options) {
-    this.elements = elements;
-    this.elementsQuantity = options.elementsQuantity;
-    this.names = options.names;
-    this.familyNames = options.familyNames;
-    this.coatColors = options.coatColors;
-    this.eyesColors = options.eyesColors;
+  constructor(data, list) {
+    this.data = data;
+    this.list = list;
+    this.renderElements();
   }
 
   render() {
-    setElementVisible(this.elements.setup, true);
-    this.showElements(getArray(this.names, this.familyNames, this.coatColors, this.eyesColors, this.elementsQuantity));
+    this.renderElements();
   }
 
-  showElements(array) {
+  getTemplate(wizard) {
+    return `<div class="setup-similar-item">
+      <div class="setup-similar-content">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 62 86" class="setup-similar-wizard">
+          <g class="wizard">
+            <use xlink:href="#wizard-coat" class="wizard-coat" fill="${wizard.coatColor}"></use>
+            <use xlink:href="#wizard-head" class="wizard-head"></use>
+            <use xlink:href="#wizard-eyes" class="wizard-eyes" fill="${wizard.eyesColor}"></use>
+            <use xlink:href="#wizard-hands" class="wizard-hands"></use>
+          </g>
+        </svg>
+      </div>
+      <p class="setup-similar-label">${wizard.name}</p>
+    </div>`;
+  }
+
+  renderElements() {
     const fragment = document.createDocumentFragment();
-    for (const item of array) {
-      fragment.appendChild(createContent(getWizardTemplate(item)));
+    for (const item of this.data) {
+      fragment.appendChild(createContent(this.getTemplate(item)));
     }
-    this.elements.similarListElement.appendChild(fragment);
-    setElementVisible(this.elements.setupSimilar, true);
+    this.list.appendChild(fragment);
   }
 }
 
-const rendererWizards = new WizardsRenderer(wizardsElements, wizardsOptions);
+const dataArray = getArray(wizardsOptions.names, wizardsOptions.familyNames, wizardsOptions.coatColors, wizardsOptions.eyesColors, wizardsOptions.elementsQuantity);
+
+const rendererWizards = new WizardsRenderer(dataArray, similarListElement);
 rendererWizards.render();
+setElementVisible(setupSimilar, true);
+setElementVisible(setup, true);
