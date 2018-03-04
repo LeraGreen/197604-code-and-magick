@@ -8,10 +8,7 @@ const wizardsOptions = {
   elementsQuantity: 4,
   names: [`Иван`, `Хуан Себастьян`, `Мария`, `Кристоф`, `Виктор`, `Юлия`, `Люпита`, `Вашингтон`],
   familyNames: [`да Марья`, `Верон`, `Мирабелла`, `Вальц`, `Онопко`, `Топольницкая`, `Нионго`, `Ирвинг`],
-  coatColors: [`rgb(101, 137, 164)`, `rgb(241, 43, 107)`, `rgb(146, 100, 161)
-  `, `rgb(56, 159, 117)
-  `, `rgb(215, 210, 55)
-  `, `rgb(0, 0, 0)`],
+  coatColors: [`rgb(101, 137, 164)`, `rgb(241, 43, 107)`, `rgb(146, 100, 161)`, `rgb(56, 159, 117)`, `rgb(215, 210, 55)`, `rgb(0, 0, 0)`],
   eyesColors: [`black`, `red`, `blue`, `yellow`, `green`]
 };
 
@@ -20,33 +17,29 @@ const setElementVisible = (element, isVisible) => {
   element.classList.toggle(`hidden`, !isVisible);
 };
 
-// после принятия пр убрать эту функцию, так как она есть в другом модуле
-const generateNumber = (min, max) => (Math.random() * (max - min)) + min;
-
 const shuffleArray = (array) => {
   const newArray = array.slice();
 
   for (let i = newArray.length - 1; i >= 0; i--) {
-    const index = Math.floor(generateNumber(0, i));
+    const index = Math.floor(window.generateNumber(0, i));
     const lastIndex = newArray.length - 1;
     [newArray[index], newArray[lastIndex]] = [newArray[lastIndex], newArray[index]];
   }
   return newArray;
 };
 
-const getArray = (names, familyNames, coatColors, eyesColors, quantity) => {
+const getWizards = (names, familyNames, coatColors, eyesColors, quantity) => {
   const mixNames = shuffleArray(names);
   const mixFamilyNames = shuffleArray(familyNames);
   const mixCoatColors = shuffleArray(coatColors);
   const mixEyesColors = shuffleArray(eyesColors);
   const array = [];
   for (let i = 0; i < quantity; i++) {
-    const object = Object.assign({}, {
+    array.push({
       name: `${mixNames[i]} ${mixFamilyNames[i]}`,
       coatColor: mixCoatColors[i],
       eyesColor: mixEyesColors[i]
     });
-    array.push(object);
   }
   return array;
 };
@@ -55,17 +48,22 @@ const getArray = (names, familyNames, coatColors, eyesColors, quantity) => {
 const createContent = (string) => {
   const container = document.createElement(`template`);
   container.innerHTML = string;
-  return container.content;
+  return container.content.children[0];
 };
 
 class WizardsRenderer {
-  constructor(data, list) {
+  constructor(data, container) {
     this.data = data;
-    this.list = list;
+    this.container = container;
   }
 
   render() {
-    this.renderElements();
+    const fragment = document.createDocumentFragment();
+    for (const item of this.data) {
+      createContent(this.getTemplate(item));
+      fragment.appendChild(createContent(this.getTemplate(item)));
+    }
+    this.container.appendChild(fragment);
   }
 
   getTemplate(wizard) {
@@ -83,19 +81,11 @@ class WizardsRenderer {
       <p class="setup-similar-label">${wizard.name}</p>
     </div>`;
   }
-
-  renderElements() {
-    const fragment = document.createDocumentFragment();
-    for (const item of this.data) {
-      fragment.appendChild(createContent(this.getTemplate(item)));
-    }
-    this.list.appendChild(fragment);
-  }
 }
 
-const dataArray = getArray(wizardsOptions.names, wizardsOptions.familyNames, wizardsOptions.coatColors, wizardsOptions.eyesColors, wizardsOptions.elementsQuantity);
+const dataArray = getWizards(wizardsOptions.names, wizardsOptions.familyNames, wizardsOptions.coatColors, wizardsOptions.eyesColors, wizardsOptions.elementsQuantity);
 
-const rendererWizards = new WizardsRenderer(dataArray, similarListElement);
-rendererWizards.render();
+const wizardsRenderer = new WizardsRenderer(dataArray, similarListElement);
+wizardsRenderer.render();
 setElementVisible(setupSimilar, true);
 setElementVisible(setup, true);
