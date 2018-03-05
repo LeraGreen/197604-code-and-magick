@@ -4,14 +4,18 @@ const setup = document.querySelector(`.setup`);
 const similarListElement = setup.querySelector(`.setup-similar-list`);
 const setupSimilar = setup.querySelector(`.setup-similar`);
 
+
+const wizardCoatColors = [`rgb(101, 137, 164)`, `rgb(241, 43, 107)`, `rgb(146, 100, 161)`, `rgb(56, 159, 117)`, `rgb(215, 210, 55)`, `rgb(0, 0, 0)`];
+const wizardEyesColors = [`black`, `red`, `blue`, `yellow`, `green`];
+const fireballColors = [`#ee4830`, `#30a8ee`, `#5ce6c0`, `#e848d5`, `#e6e848`];
+
 const wizardsOptions = {
   elementsQuantity: 4,
   names: [`Иван`, `Хуан Себастьян`, `Мария`, `Кристоф`, `Виктор`, `Юлия`, `Люпита`, `Вашингтон`],
   familyNames: [`да Марья`, `Верон`, `Мирабелла`, `Вальц`, `Онопко`, `Топольницкая`, `Нионго`, `Ирвинг`],
-  coatColors: [`rgb(101, 137, 164)`, `rgb(241, 43, 107)`, `rgb(146, 100, 161)`, `rgb(56, 159, 117)`, `rgb(215, 210, 55)`, `rgb(0, 0, 0)`],
-  eyesColors: [`black`, `red`, `blue`, `yellow`, `green`]
+  coatColors: wizardCoatColors,
+  eyesColors: wizardEyesColors
 };
-
 
 const setElementVisible = (element, isVisible) => {
   element.classList.toggle(`hidden`, !isVisible);
@@ -83,9 +87,81 @@ class WizardsRenderer {
   }
 }
 
+class WizardsHandler {
+  constructor(container) {
+    this.container = container;
+    this.containerOpen = document.querySelector(`.setup-open`);
+    this.containerClose = this.container.querySelector(`.setup-close`);
+    this.inputUserName = this.container.querySelector(`[name = "username"]`);
+    this.fireballWrap = this.container.querySelector(`.setup-fireball-wrap`);
+    this.wizardPicture = this.container.querySelector(`.setup-wizard`);
+    this.wizardCoat = this.wizardPicture.querySelector(`.wizard-coat`);
+    this.wizardEyes = this.wizardPicture.querySelector(`.wizard-eyes`);
+    this.enterButton = 13;
+    this.escapeButton = 27;
+  }
+
+  setHandlers() {
+    this.containerOpen.addEventListener(`click`, () => {
+      setElementVisible(this.container, true);
+    });
+    this.containerOpen.addEventListener(`keydown`, (evt) => {
+      if (evt.keyCode === this.enterButton) {
+        setElementVisible(this.container, true);
+      }
+    });
+    this.containerClose.addEventListener(`keydown`, (evt) => {
+      if (evt.keyCode === this.enterButton) {
+        setElementVisible(this.container, false);
+      }
+    });
+    this.containerClose.addEventListener(`click`, () => {
+      setElementVisible(this.container, false);
+    });
+    document.addEventListener(`keydown`, (evt) => {
+      if (evt.keyCode === this.escapeButton && evt.target !== this.inputUserName) {
+        setElementVisible(this.container, false);
+      }
+    });
+    this.wizardCoat.addEventListener(`click`, (evt) => {
+      const index = Math.round(window.generateNumber(0, wizardCoatColors.length - 1));
+      evt.target.setAttribute(`style`, `fill: ` + wizardCoatColors[index]);
+    });
+    this.wizardEyes.addEventListener(`click`, (evt) => {
+      const index = Math.round(window.generateNumber(0, wizardEyesColors.length - 1));
+      evt.target.setAttribute(`style`, `fill: ` + wizardEyesColors[index]);
+    });
+    this.fireballWrap.addEventListener(`click`, (evt) => {
+      const index = Math.round(window.generateNumber(0, fireballColors.length - 1));
+      evt.currentTarget.style.background = fireballColors[index];
+    });
+    this.inputUserName.addEventListener(`invalid`, () => {
+      if (this.inputUserName.validity.tooShort) {
+        this.inputUserName.setCustomValidity(`Имя должно состоять минимум из 2-х символов`);
+      } else if (this.inputUserName.validity.tooLong) {
+        this.inputUserName.setCustomValidity(`Имя не должно превышать 25-ти символов`);
+      } else if (this.inputUserName.validity.valueMissing) {
+        this.inputUserName.setCustomValidity(`Обязательное поле`);
+      } else {
+        this.inputUserName.setCustomValidity(``);
+      }
+    });
+    this.inputUserName.addEventListener(`input`, (evt) => {
+      const target = evt.target;
+      if (target.value.length < 2) {
+        target.setCustomValidity(`Имя должно состоять минимум из 2-х символов`);
+      } else {
+        target.setCustomValidity(``);
+      }
+    });
+  }
+}
+
 const dataArray = getWizards(wizardsOptions.names, wizardsOptions.familyNames, wizardsOptions.coatColors, wizardsOptions.eyesColors, wizardsOptions.elementsQuantity);
 
 const wizardsRenderer = new WizardsRenderer(dataArray, similarListElement);
 wizardsRenderer.render();
 setElementVisible(setupSimilar, true);
-setElementVisible(setup, true);
+
+const wizardsHandler = new WizardsHandler(setup);
+wizardsHandler.setHandlers();

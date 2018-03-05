@@ -1,6 +1,6 @@
 'use strict';
 
-const generateNumber = (min, max) => (Math.random() * (max - min)) + min;
+window.generateNumber = (min, max) => (Math.random() * (max - min)) + min;
 
 
 const renderText = (ctx, text, fontParams) => {
@@ -76,7 +76,7 @@ class StatisticsRenderer {
 
     this.ctx.fillStyle = name === this.userName
       ? this.columnOptions.userColor.getRgbaString(1)
-      : this.columnOptions.otherColor.getRgbaString(+generateNumber(0.2, 1).toFixed(1));
+      : this.columnOptions.otherColor.getRgbaString(+window.generateNumber(0.2, 1).toFixed(1));
 
     this.ctx.fillRect(x, renderHeight - height, this.columnOptions.width, height);
 
