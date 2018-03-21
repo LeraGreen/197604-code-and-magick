@@ -57,6 +57,7 @@ const createContent = (string) => {
 
 class WizardsRenderer {
   constructor(data, container) {
+    //list. Только ты знаешь что это будет список волшебников, но на самом деле это просто контейнер. Еще подумалось что мы одним и тем же рендерером можем отрисовывать волшебников в разные контейнеры, поэтому можно сделать container (не list) параметром метода render.
     this.data = data;
     this.container = container;
   }
@@ -157,9 +158,9 @@ class WizardsHandler {
   }
 }
 
-const dataArray = getWizards(wizardsOptions.names, wizardsOptions.familyNames, wizardsOptions.coatColors, wizardsOptions.eyesColors, wizardsOptions.elementsQuantity);
+const dataWizards = getWizards(wizardsOptions.names, wizardsOptions.familyNames, wizardsOptions.coatColors, wizardsOptions.eyesColors, wizardsOptions.elementsQuantity);
 
-const wizardsRenderer = new WizardsRenderer(dataArray, similarListElement);
+const wizardsRenderer = new WizardsRenderer(dataWizards, similarListElement);
 wizardsRenderer.render();
 setElementVisible(setupSimilar, true);
 
